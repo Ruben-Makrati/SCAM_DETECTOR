@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+
+{% block title %}Model Performance - Scam Offers Detection System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-chart-line me-3"></i>
+            Model Performance & Classification Report
+        </h1>
+
+        {% if performance.error %}
+        <div class="alert alert-danger">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>Error Loading Model Performance</h5>
+            <p>{{ performance.error }}</p>
+        </div>
+        {% else %}
+
+        <!-- Model Overview -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>
+                    Model Overview
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="bg-success text-white rounded p-3">
+                            <h3>{{ performance.accuracy|floatformat:1 }}%</h3>
+                            <p class="mb-0">Overall Accuracy</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="bg-info text-white rounded p-3">
+                            <h3>{{ performance.total_samples }}</h3>
+                            <p class="mb-0">Total Training Samples</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="bg-warning text-white rounded p-3">
+                            <h3>{{ performance.feature_count }}</h3>
+                            <p class="mb-0">Features Used</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="bg-secondary text-white rounded p-3">
+                            <h3>{{ performance.model_type }}</h3>
+                            <p class="mb-0">Algorithm</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Statistics -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-database me-2"></i>
+                    Dataset Statistics
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Class Distribution</h5>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>Legitimate Messages:</span>
+                                    <span class="badge bg-success">{{ performance.legitimate_count }}</span>
+                                </div>
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-success" style="width: {{ performance.legitimate_percentage }}%">
+                                        {{ performance.legitimate_percentage|floatformat:1 }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>Spam Messages:</span>
+                                    <span class="badge bg-danger">{{ performance.spam_count }}</span>
+                                </div>
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-danger" style="width: {{ performance.spam_percentage }}%">
+                                        {{ performance.spam_percentage|floatformat:1 }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Model Information</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Model Type:</strong></td>
+                                <td>{{ performance.model_type }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vectorizer:</strong></td>
+                                <td>{{ performance.vectorizer_type }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Features:</strong></td>
+                                <td>{{ performance.feature_count }} TF-IDF features</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Training Status:</strong></td>
+                                <td>
+                                    {% if performance.is_trained %}
+                                        <span class="badge bg-success">Trained</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Not Trained</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classification Report -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    Test Set Classification Report
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if performance.classification_report %}
+                <pre class="bg-light p-3 rounded border" style="font-size: 1rem;">{{ performance.classification_report }}</pre>
+                {% else %}
+                <div class="alert alert-warning">Classification report not available.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Performance Metrics
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Accuracy Breakdown</h5>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="border rounded p-3 mb-3">
+                                    <h4 class="text-success">{{ performance.accuracy|floatformat:1 }}%</h4>
+                                    <p class="mb-0">Overall Accuracy</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="border rounded p-3 mb-3">
+                                    <h4 class="text-primary">{{ performance.legitimate_percentage|floatformat:1 }}%</h4>
+                                    <p class="mb-0">Legitimate Detection</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Model Capabilities</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Text Preprocessing</span>
+                                <span class="badge bg-success">✓</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Feature Extraction</span>
+                                <span class="badge bg-success">✓</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Real-time Prediction</span>
+                                <span class="badge bg-success">✓</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Confidence Scoring</span>
+                                <span class="badge bg-success">✓</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Information -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="fas fa-cogs me-2"></i>
+                    Training Information
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Training Process</h5>
+                        <ol>
+                            <li><strong>Data Loading:</strong> Load spam.csv dataset with latin-1 encoding</li>
+                            <li><strong>Text Preprocessing:</strong> Clean and normalize text data</li>
+                            <li><strong>Feature Extraction:</strong> Convert text to TF-IDF vectors</li>
+                            <li><strong>Model Training:</strong> Train Multinomial Naive Bayes classifier</li>
+                            <li><strong>Evaluation:</strong> Test on 20% holdout set</li>
+                            <li><strong>Model Saving:</strong> Save trained model for production use</li>
+                        </ol>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Model Features</h5>
+                        <ul>
+                            <li><strong>Max Features:</strong> 5,000 TF-IDF features</li>
+                            <li><strong>N-gram Range:</strong> Unigrams and bigrams (1-2)</li>
+                            <li><strong>Stop Words:</strong> English stop words removed</li>
+                            <li><strong>Text Cleaning:</strong> Special characters and extra spaces removed</li>
+                            <li><strong>Case Normalization:</strong> All text converted to lowercase</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Performance Visualization
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="accuracyChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="distributionChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Accuracy Chart
+    const accuracyCtx = document.getElementById('accuracyChart').getContext('2d');
+    new Chart(accuracyCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Accuracy', 'Remaining'],
+            datasets: [{
+                data: [{{ performance.accuracy_value }}, {{ performance.remaining_value }}],
+                backgroundColor: ['#28a745', '#6c757d'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Model Accuracy'
+                }
+            }
+        }
+    });
+
+    // Distribution Chart
+    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+    new Chart(distributionCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Legitimate', 'Spam'],
+            datasets: [{
+                data: [{{ performance.legitimate_count }}, {{ performance.spam_count }}],
+                backgroundColor: ['#28a745', '#dc3545'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Dataset Distribution'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

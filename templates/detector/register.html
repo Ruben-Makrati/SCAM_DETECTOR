@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Register - Scam Offers Detection System{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-lg border-0">
+      <div class="card-header bg-gradient-primary text-white text-center py-4">
+        <h2 class="mb-1"><i class="fas fa-user-plus me-2"></i>Create Account</h2>
+        <p class="mb-0">Join ScamDetector and stay protected</p>
+      </div>
+      <div class="card-body p-4">
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+              {{ error }}<br>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <form method="post" autocomplete="off">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="id_username" class="form-label">Username</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              {{ form.username|add_class:'form-control' }}
+            </div>
+            {% if form.username.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.username.errors %}
+                  {{ error }}<br>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="id_password1" class="form-label">Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              {{ form.password1|add_class:'form-control' }}
+            </div>
+            {% if form.password1.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.password1.errors %}
+                  {{ error }}<br>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="id_password2" class="form-label">Confirm Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              {{ form.password2|add_class:'form-control' }}
+            </div>
+            {% if form.password2.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.password2.errors %}
+                  {{ error }}<br>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="id_first_name" class="form-label">First Name</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              {{ form.first_name|add_class:'form-control' }}
+            </div>
+            {% if form.first_name.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.first_name.errors %}
+                  {{ error }}<br>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="id_last_name" class="form-label">Last Name</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              {{ form.last_name|add_class:'form-control' }}
+            </div>
+            {% if form.last_name.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.last_name.errors %}
+                  {{ error }}<br>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="id_email" class="form-label">Email Address</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              {{ form.email|add_class:'form-control' }}
+            </div>
+            {% if form.email.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.email.errors %}
+                  {{ error }}<br>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
+            <i class="fas fa-user-plus me-2"></i>Register
+          </button>
+        </form>
+        <div class="mt-4 text-center">
+          <span>Already have an account?</span>
+          <a href="{% url 'detector:login' %}" class="fw-bold">Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

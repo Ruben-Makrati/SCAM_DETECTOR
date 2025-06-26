@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}About - Scam Offers Detection System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h1 class="mb-4">
+            <i class="fas fa-info-circle me-3"></i>
+            About ScamDetector
+        </h1>
+
+        <!-- Mission Statement -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="text-primary">Our Mission</h3>
+                <p class="lead">
+                    To protect individuals and families from fraudulent offers and scams using cutting-edge machine learning technology.
+                </p>
+                <p>
+                    In today's digital world, scams are becoming increasingly sophisticated and widespread. 
+                    Our goal is to provide a reliable, easy-to-use tool that helps people identify potential scams 
+                    before they can cause harm.
+                </p>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-cogs me-2"></i>
+                    How Our Technology Works
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-brain fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Machine Learning</h5>
+                                <p>Our system uses advanced natural language processing and machine learning algorithms trained on thousands of known scam examples.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-chart-line fa-2x text-success"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Pattern Recognition</h5>
+                                <p>The AI identifies common patterns, keywords, and linguistic markers that are typically associated with fraudulent offers.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-bolt fa-2x text-warning"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Real-time Analysis</h5>
+                                <p>Get instant results with our real-time text analysis system that processes your input in seconds.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-shield-alt fa-2x text-danger"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Continuous Learning</h5>
+                                <p>Our system continuously improves by learning from new scam reports and user feedback.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-star me-2"></i>
+                    Key Features
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <i class="fas fa-search fa-3x text-primary mb-2"></i>
+                        <h5>Text Analysis</h5>
+                        <p>Analyze any text, message, or offer for potential scam indicators.</p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <i class="fas fa-chart-bar fa-3x text-info mb-2"></i>
+                        <h5>Detailed Reports</h5>
+                        <p>Get comprehensive analysis with confidence scores and detailed explanations.</p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <i class="fas fa-history fa-3x text-warning mb-2"></i>
+                        <h5>Detection History</h5>
+                        <p>Track your previous analyses and view detection statistics over time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-users me-2"></i>
+                    Our Commitment
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-lock text-success me-2"></i>Privacy & Security</h5>
+                        <p>We prioritize your privacy. All text analysis is processed securely and we don't store personal information.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-heart text-danger me-2"></i>Community Focus</h5>
+                        <p>We're committed to building a safer online community by helping users identify and report scams.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="fas fa-envelope me-2"></i>
+                    Get in Touch
+                </h4>
+            </div>
+            <div class="card-body">
+                <p>
+                    Have questions, suggestions, or want to report a bug? We'd love to hear from you!
+                </p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-flag me-2"></i>Report Issues</h6>
+                        <p>Use our <a href="{% url 'detector:report_scam' %}">Report a Scam</a> feature to help improve our detection system.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-question-circle me-2"></i>Learn More</h6>
+                        <p>Visit our <a href="{% url 'detector:how_it_works' %}">How It Works</a> page for detailed information about our technology.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

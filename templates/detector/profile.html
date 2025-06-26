@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Profile - Scam Offers Detection System{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-7">
+    <div class="card mt-4 shadow">
+      <div class="card-header bg-info text-white d-flex align-items-center">
+        <i class="fas fa-user-circle fa-2x me-3"></i>
+        <div>
+          <h4 class="mb-0">{{ user.get_full_name|default:user.username }}</h4>
+          <small class="text-white-50">Member since {{ user.date_joined|date:"M Y" }}</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
+              <li class="list-group-item"><strong>Email:</strong> {{ user.email|default:'(not set)' }}</li>
+              <li class="list-group-item"><strong>First Name:</strong> {{ user.first_name|default:'-' }}</li>
+              <li class="list-group-item"><strong>Last Name:</strong> {{ user.last_name|default:'-' }}</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <div class="row text-center">
+              <div class="col-6 mb-3">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><i class="fas fa-database text-primary"></i></h5>
+                    <h6 class="fw-bold">{{ total_detections }}</h6>
+                    <small class="text-muted">Total Detections</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 mb-3">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><i class="fas fa-exclamation-triangle text-danger"></i></h5>
+                    <h6 class="fw-bold">{{ scam_count }}</h6>
+                    <small class="text-muted">Scams Detected</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><i class="fas fa-check-circle text-success"></i></h5>
+                    <h6 class="fw-bold">{{ legitimate_count }}</h6>
+                    <small class="text-muted">Legitimate</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><i class="fas fa-thumbs-up text-success"></i></h5>
+                    <h6 class="fw-bold">{{ feedback_correct }}</h6>
+                    <small class="text-muted">Marked Correct</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><i class="fas fa-thumbs-down text-danger"></i></h5>
+                    <h6 class="fw-bold">{{ feedback_incorrect }}</h6>
+                    <small class="text-muted">Marked Incorrect</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <h5 class="mb-3"><i class="fas fa-history me-2"></i>Recent Detections</h5>
+        {% if recent_detections %}
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Text</th>
+                <th>Result</th>
+                <th>Confidence</th>
+                <th>Feedback</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for detection in recent_detections %}
+              <tr>
+                <td><small>{{ detection.detected_at|date:"M d, Y H:i" }}</small></td>
+                <td><div class="text-truncate" style="max-width: 200px;" title="{{ detection.text }}">{{ detection.text }}</div></td>
+                <td>
+                  {% if detection.is_scam %}
+                    <span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>Scam</span>
+                  {% else %}
+                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Legitimate</span>
+                  {% endif %}
+                </td>
+                <td><small>{{ detection.confidence_score|floatformat:1 }}%</small></td>
+                <td>
+                  {% if detection.user_feedback == 'correct' %}
+                    <span class="badge bg-success">Correct</span>
+                  {% elif detection.user_feedback == 'incorrect' %}
+                    <span class="badge bg-danger">Incorrect</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Not Set</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-end">
+          <a href="{% url 'detector:detection_history' %}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-list me-1"></i>View Full History
+          </a>
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center mb-0">
+          <i class="fas fa-info-circle me-2"></i>No recent detections found.
+        </div>
+        {% endif %}
+        <div class="mt-4 text-center">
+          <a href="{% url 'detector:logout' %}" class="btn btn-danger w-50">
+            <i class="fas fa-sign-out-alt me-2"></i>Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

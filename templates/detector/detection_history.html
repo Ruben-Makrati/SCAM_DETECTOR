@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block title %}Detection History - Scam Offers Detection System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-history me-3"></i>
+            Detection History
+        </h1>
+
+        <!-- Filter Controls -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="filter" class="form-label">Filter by Result:</label>
+                        <select id="filter" class="form-select" onchange="window.location.href='?filter=' + this.value">
+                            <option value="">All Results</option>
+                            <option value="scam" {% if scam_filter == 'scam' %}selected{% endif %}>Scams Only</option>
+                            <option value="legitimate" {% if scam_filter == 'legitimate' %}selected{% endif %}>Legitimate Only</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="d-flex gap-2">
+                            <a href="?filter=scam" class="btn btn-outline-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>View Scams
+                            </a>
+                            <a href="?filter=legitimate" class="btn btn-outline-success">
+                                <i class="fas fa-check-circle me-2"></i>View Legitimate
+                            </a>
+                            <a href="?" class="btn btn-outline-primary">
+                                <i class="fas fa-list me-2"></i>View All
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detection History Table -->
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'detector:clear_history' %}" class="mb-3">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash-alt me-2"></i>Clear History
+            </button>
+        </form>
+        {% endif %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    All Detections
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if page_obj %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Text</th>
+                                    <th>Result</th>
+                                    <th>Confidence</th>
+                                    <th>IP Address</th>
+                                    <th>Feedback</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detection in page_obj %}
+                                <tr>
+                                    <td>
+                                        <small>{{ detection.detected_at|date:"M d, Y" }}</small><br>
+                                        <small class="text-muted">{{ detection.detected_at|date:"H:i:s" }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 400px;" 
+                                             data-bs-toggle="tooltip" title="{{ detection.text }}">
+                                            {{ detection.text }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if detection.is_scam %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>Scam
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Legitimate
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress me-2" style="width: 80px;">
+                                                <div class="progress-bar {% if detection.is_scam %}bg-danger{% else %}bg-success{% endif %}" 
+                                                     style="width: {{ detection.confidence_score|floatformat:0 }}%">
+                                                </div>
+                                            </div>
+                                            <small>{{ detection.confidence_score|floatformat:1 }}%</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ detection.ip_address|default:"N/A" }}</small>
+                                    </td>
+                                    <td>
+                                        <div id="feedback-{{ detection.id }}">
+                                            {% if detection.user_feedback == 'correct' %}
+                                                <span class="badge bg-success">Correct</span>
+                                            {% elif detection.user_feedback == 'incorrect' %}
+                                                <span class="badge bg-danger">Incorrect</span>
+                                            {% else %}
+                                                <button class="btn btn-sm btn-outline-success me-1" onclick="markFeedback({{ detection.id }}, 'correct')">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="markFeedback({{ detection.id }}, 'incorrect')">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Detection history pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if scam_filter %}&filter={{ scam_filter }}{% endif %}">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if scam_filter %}&filter={{ scam_filter }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if scam_filter %}&filter={{ scam_filter }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if scam_filter %}&filter={{ scam_filter }}{% endif %}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if scam_filter %}&filter={{ scam_filter }}{% endif %}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                    <!-- Summary -->
+                    <div class="text-center mt-3">
+                        <p class="text-muted">
+                            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} detections
+                        </p>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Detection History</h5>
+                        <p class="text-muted">No detections found matching your criteria.</p>
+                        <a href="{% url 'detector:home' %}" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Start Detecting
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %} 

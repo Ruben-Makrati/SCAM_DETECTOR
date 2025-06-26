@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block title %}Results & Analysis - Scam Offers Detection System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-chart-bar me-3"></i>
+            Results & Analysis
+        </h1>
+        
+        <!-- Date Range Filter -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="days" class="form-label">Time Period:</label>
+                        <select name="days" id="days" class="form-select">
+                            <option value="1" {% if days == 1 %}selected{% endif %}>Last 24 hours</option>
+                            <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+                            <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+                            <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-2"></i>Filter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3>{{ total_detections }}</h3>
+                        <p class="mb-0">Total Detections</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h3>{{ total_scams }}</h3>
+                        <p class="mb-0">Scams Detected</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3>{{ total_detections|add:"-"|add:total_scams }}</h3>
+                        <p class="mb-0">Legitimate</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h3>{{ scam_percentage|floatformat:1 }}%</h3>
+                        <p class="mb-0">Scam Rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Chart -->
+        {% if stats %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Detection Statistics Over Time
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statsChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Detections -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Recent Detections ({{ date_range }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if page_obj %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Text</th>
+                                    <th>Result</th>
+                                    <th>Confidence</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detection in page_obj %}
+                                <tr>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 300px;" title="{{ detection.text }}">
+                                            {{ detection.text }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if detection.is_scam %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>Scam
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Legitimate
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="width: 100px;">
+                                            <div class="progress-bar {% if detection.is_scam %}bg-danger{% else %}bg-success{% endif %}" 
+                                                 style="width: {{ detection.confidence_score|floatformat:0 }}%">
+                                            </div>
+                                        </div>
+                                        <small>{{ detection.confidence_score|floatformat:1 }}%</small>
+                                    </td>
+                                    <td>{{ detection.detected_at|date:"M d, Y H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Detection history pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1&days={{ days }}">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&days={{ days }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}&days={{ days }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&days={{ days }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&days={{ days }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No detection data available for the selected time period.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart data
+    const chartData = {
+        labels: [{% for stat in stats %}'{{ stat.date|date:"M d" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Total Detections',
+            data: [{% for stat in stats %}{{ stat.total_detections }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }, {
+            label: 'Scam Detections',
+            data: [{% for stat in stats %}{{ stat.scam_detections }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            tension: 0.1
+        }]
+    };
+
+    // Create chart
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

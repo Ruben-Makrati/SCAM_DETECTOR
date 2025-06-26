@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}Report a Scam - Scam Offers Detection System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h1 class="mb-4">
+            <i class="fas fa-flag me-3"></i>
+            Report a Scam
+        </h1>
+        
+        <p class="lead text-muted mb-4">
+            Help us protect others by reporting scams you've encountered. Your reports help improve our detection system and warn others about new scam tactics.
+        </p>
+
+        <!-- Report Form -->
+        <div class="card shadow-lg">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Report Suspicious Activity
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post" id="report-form">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        {{ form.report_type.label_tag }}
+                        {{ form.report_type }}
+                        {% if form.report_type.errors %}
+                            <div class="text-danger">
+                                {% for error in form.report_type.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                        {% if form.description.help_text %}
+                            <div class="form-text">{{ form.description.help_text }}</div>
+                        {% endif %}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.contact_info.label_tag }}
+                        {{ form.contact_info }}
+                        {% if form.contact_info.help_text %}
+                            <div class="form-text">{{ form.contact_info.help_text }}</div>
+                        {% endif %}
+                        {% if form.contact_info.errors %}
+                            <div class="text-danger">
+                                {% for error in form.contact_info.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recent Reports -->
+        {% if recent_reports %}
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Recent Reports
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for report in recent_reports %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                <span class="badge bg-secondary me-2">{{ report.get_report_type_display }}</span>
+                                {{ report.description|truncatechars:100 }}
+                            </h6>
+                            <small class="text-muted">{{ report.reported_at|timesince }} ago</small>
+                        </div>
+                        {% if report.contact_info %}
+                        <small class="text-muted">Contact: {{ report.contact_info }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Safety Tips -->
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Safety Tips
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>Common Scam Signs:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-times text-danger me-2"></i>Urgent requests for money</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>Too-good-to-be-true offers</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>Requests for personal information</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>Pressure to act immediately</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-check-circle text-success me-2"></i>Protect Yourself:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Never share personal information</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Verify before trusting</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Use our detection tool</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Report suspicious activity</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('report-form');
+    const descriptionField = document.getElementById('report-description');
+    
+    form.addEventListener('submit', function(e) {
+        if (!descriptionField.value.trim()) {
+            e.preventDefault();
+            alert('Please provide a description of the scam.');
+            descriptionField.focus();
+        }
+    });
+});
+</script>
+{% endblock %} 
