@@ -9,3 +9,5 @@ wordcloud>=1.8.0
 streamlit==1.29.0
 joblib>=1.1.0 
 gunicorn
+django-widget-tweaks
+
